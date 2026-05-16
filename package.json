@@ -1,5 +1,5 @@
 {
-  "name": "@lidongyang/openclaw-skill-article-summarizer",
+  "name": "openclaw-skill-article-summarizer",
   "version": "1.0.0",
   "description": "OpenClaw skill: summarize articles, web pages, PDFs, and Feishu docs from a shared link",
   "main": "SKILL.md",
