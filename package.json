@@ -1,0 +1,14 @@
+{
+  "name": "@lidongyang/openclaw-skill-article-summarizer",
+  "version": "1.0.0",
+  "description": "OpenClaw skill: summarize articles, web pages, PDFs, and Feishu docs from a shared link",
+  "main": "SKILL.md",
+  "files": ["SKILL.md"],
+  "keywords": ["openclaw", "skill", "summarizer", "article"],
+  "author": "lidongyangLeo",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lidongyangLeo/openclaw-skill-article-summarizer.git"
+  }
+}
