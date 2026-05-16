@@ -1,6 +1,6 @@
 {
   "name": "openclaw-skill-article-summarizer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OpenClaw skill: summarize articles, web pages, PDFs, and Feishu docs from a shared link",
   "main": "SKILL.md",
   "files": ["SKILL.md", "README.md"],
