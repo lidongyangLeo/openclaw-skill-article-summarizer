@@ -1,6 +1,6 @@
 ---
 name: article-summarizer
-description: Summarize articles, web pages, PDFs, and Feishu docs. Send user a link → auto-fetch, summarize in 3 bullet points, save to notes, push to WeChat.
+description: 用户发来文章/网页/PDF/飞书链接，并明确表达"总结/概括/讲了啥/三句话说说"等意图时调用。仅发链接不触发。
 metadata:
   openclaw:
     emoji: "📄"
@@ -9,54 +9,62 @@ metadata:
 
 # Article Summarizer
 
-Summarize any article/webpage/PDF/Feishu doc from a shared link.
+把任意可访问的内容（网页 / PDF / 飞书文档 / 本地文件）压成几条要点。
 
-## When to Use
+## 何时触发
 
-✅ User sends a URL and wants a summary
-✅ User says "帮我总结这篇文章" "这篇文章讲了什么" "三句话概括"
-✅ Supports: web pages, PDFs, Feishu docs, any fetchable content
+✅ 用户发链接 **并** 说"总结一下 / 这篇讲了啥 / 三句话概括 / 帮我看看"
+❌ 用户只发链接、没表达总结意图 → 不触发，让用户先说想干嘛
 
-## Workflow
+## 流程
 
-### Step 1: Identify the content type
+1. **抓内容**：根据来源选工具（http(s) → `web_fetch` markdown 模式；PDF → `document-extract`；飞书 → `feishu-doc` skill；本地 → `read`）。
+2. **判长度**：抓到的正文按字数走策略。
+3. **出总结**：按下面的格式输出。
+4. **后置询问**：是否「存笔记」/「推微信」。**默认不存不推**，等用户点头。
 
-| Source | Tool | How |
-|--------|------|-----|
-| Web page (http/https) | `web_fetch` | Grab markdown |
-| PDF attachment | `document-extract` plugin | Read text |
-| Feishu doc | `feishu-doc` skill | Read doc content |
-| Local file | `read` tool | Direct read |
+## 长度策略
 
-### Step 2: Fetch content
+| 正文字数 | 输出 |
+|---|---|
+| < 800 | 2 条要点 |
+| 800–3000 | 3 条要点（默认） |
+| > 3000 | 5 条要点 + 开头 100 字以内的整体概要 |
+
+用户明确说"一句话" / "详细点" / "再展开"时，按用户的来。
+
+## 输出格式
 
 ```
-web_fetch url="<link>" extractMode="markdown" maxChars=5000
+**<标题>** — <来源域名或站点名>
+
+• <要点 1，一句话>
+• <要点 2，一句话>
+• <要点 3，一句话>
+
+> 我的看法（可选，仅当有非显然观点时）：……
 ```
 
-### Step 3: Summarize
+注意：
+- 不堆 emoji
+- 要点是**信息**，不是文章里的小标题
+- "我的看法"没有就别硬写
 
-Format:
-```
-📄 **[标题]**
-   📍 [来源名称]
+## 存与推（后置）
 
-1. [一句话要点]
-2. [一句话要点]  
-3. [一句话要点]
+总结发完后，单独一句问：
 
-💬 我的看法: [optional one-liner]
-```
+> 要存到笔记吗？要推微信吗？
 
-### Step 4: Save & Send
+- **存笔记**：写到 `~/workspace/notes/summaries/YYYY-MM-DD-<slug>.md`，正文是 markdown 总结 + 原始链接。
+- **推微信**：调用 [[openclaw-weixin]] skill 的 `send-text` 动作，把总结作为 `text` 参数传过去。
 
-- Save to `~/workspace/notes/summaries/YYYY-MM-DD-<slug>.md`
-- If WeChat is configured, send summary via openclaw-weixin
+用户明确说"存 + 推"时一次性做完，不重复问。
 
-## Quick Examples
+## 例子
 
-User: "https://example.com/blog/post"
-→ Fetch → Summarize → Ask: "存笔记？发微信？"
+用户：`总结下 https://example.com/post`
+→ web_fetch → 出格式化总结 → 问"要存吗？要推吗？"
 
-User: "总结这篇飞书文档" + feishu link
-→ feishu-doc skill → Read → Summarize → Same flow
+用户：`这篇飞书文档讲了什么 <feishu-link>`
+→ feishu-doc skill → 出总结 → 同上
